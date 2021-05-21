@@ -44,6 +44,8 @@ public class DualisAPI {
 
     void makeRequest(Context context, String arguments) {
 
+        System.out.println("New Request");
+
         mainArguments = arguments.replace("-N000000000000000", "");
         mainArguments = mainArguments.replace("-N000019,", "-N000307");
 
@@ -69,6 +71,7 @@ public class DualisAPI {
                                     semesterOptionen.put(jsonObject);
                                 }
                                 mainJson.put("semester", semesterOptionen);
+                                System.out.println(options.size());
                                 for (int i=0; i<options.size(); i++) {
                                     requestSemester(i, context);
                                 }
@@ -216,7 +219,7 @@ public class DualisAPI {
         }
     }
 
-    void copareAndSave(Context context, JSONObject mainJson) {
+    static void copareAndSave(Context context, JSONObject mainJson) {
         File file = new File(context.getFilesDir() + "/test.json");
         String fileContent = "";
         if (file.exists()) {
@@ -230,67 +233,66 @@ public class DualisAPI {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
 
-        JSONObject savedJson = new JSONObject();
-        try {
-            savedJson = new JSONObject(fileContent);
-            for (int i=0; i<savedJson.getJSONArray("semester").length(); i++) {
-                for (int j=0; j<savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").length(); j++) {
-                    savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).remove("link");
-                }
-            }
-
-            for (int i=0; i<mainJson.getJSONArray("semester").length(); i++) {
-                for (int j=0; j<mainJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").length(); j++) {
-                    mainJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).remove("link");
-                }
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        if (fileContent.equals(mainJson.toString())) {
-            System.out.println("EQUALS");
-        } else {
+            JSONObject savedJson = new JSONObject();
             try {
+                savedJson = new JSONObject(fileContent);
+                for (int i=0; i<savedJson.getJSONArray("semester").length(); i++) {
+                    for (int j=0; j<savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").length(); j++) {
+                        savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).remove("link");
+                    }
+                }
+
                 for (int i=0; i<mainJson.getJSONArray("semester").length(); i++) {
                     for (int j=0; j<mainJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").length(); j++) {
-                        JSONObject vorlesung = mainJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j);
-                        String endnoteCurrent = vorlesung.getString("note");
-                        String endnoteSaved = savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).getString("note");
-
-                        String noteCurrent = vorlesung.getJSONObject("pruefung").getString("note");
-                        String noteSaved = savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).getJSONObject("pruefung").getString("note");
-                        if (!noteCurrent.equals(noteSaved)) {
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
-                                    .setSmallIcon(R.drawable.ic_baseline_school_48)
-                                    .setContentTitle("Neue Prüfungsnote")
-                                    .setContentText("Es wurde eine neue Prüfungsnote eingetragen\n" + vorlesung.getString("name")  + ": " + noteCurrent)
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-                            notificationManager.notify(j, builder.build());
-                        }
-                        if (!endnoteCurrent.equals(endnoteSaved)) {
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
-                                    .setSmallIcon(R.drawable.ic_baseline_school_48)
-                                    .setContentTitle("Neue Endnote")
-                                    .setContentText("Es wurde eine neue Endnote eingetragen\n" + vorlesung.getString("name")  + ": " + endnoteCurrent)
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-                            notificationManager.notify(j, builder.build());
-                        }
+                        mainJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).remove("link");
                     }
                 }
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        }
 
+            if (fileContent.equals(mainJson.toString())) {
+                System.out.println("EQUALS");
+            } else {
+                try {
+                    for (int i=0; i<mainJson.getJSONArray("semester").length(); i++) {
+                        for (int j=0; j<mainJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").length(); j++) {
+                            JSONObject vorlesung = mainJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j);
+                            String endnoteCurrent = vorlesung.getString("note");
+                            String endnoteSaved = savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).getString("note");
+
+                            String noteCurrent = vorlesung.getJSONObject("pruefung").getString("note");
+                            String noteSaved = savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).getJSONObject("pruefung").getString("note");
+                            if (!noteCurrent.equals(noteSaved)) {
+                                NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
+                                        .setSmallIcon(R.drawable.ic_baseline_school_48)
+                                        .setContentTitle("Neue Prüfungsnote")
+                                        .setContentText("Es wurde eine neue Prüfungsnote eingetragen\n" + vorlesung.getString("name")  + ": " + noteCurrent)
+                                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+                                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+                                notificationManager.notify(j, builder.build());
+                            }
+                            if (!endnoteCurrent.equals(endnoteSaved)) {
+                                NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
+                                        .setSmallIcon(R.drawable.ic_baseline_school_48)
+                                        .setContentTitle("Neue Endnote")
+                                        .setContentText("Es wurde eine neue Endnote eingetragen\n" + vorlesung.getString("name")  + ": " + endnoteCurrent)
+                                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+                                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+                                notificationManager.notify(j, builder.build());
+                            }
+                        }
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         try {
             FileOutputStream fOut = context.openFileOutput("test.json", context.MODE_PRIVATE);
             fOut.write(mainJson.toString().getBytes());

@@ -19,6 +19,7 @@
             app:title="@string/app_name"
             app:menu="@menu/main_menu"
             style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            android:theme="@style/Theme.IconThemeWhite"
             />
 
     </com.google.android.material.appbar.AppBarLayout>

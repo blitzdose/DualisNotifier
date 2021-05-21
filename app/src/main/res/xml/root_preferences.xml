@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory app:title="@string/messages_header">
 
@@ -7,22 +8,23 @@
             app:title="@string/signature_title"
             app:useSimpleSummaryProvider="true" />
 
-        <ListPreference
+        <!--<ListPreference
             app:defaultValue="reply"
             app:entries="@array/reply_entries"
             app:entryValues="@array/reply_values"
             app:key="reply"
             app:title="@string/reply_title"
-            app:useSimpleSummaryProvider="true" />
+            app:useSimpleSummaryProvider="true" />-->
 
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Benachrichtigungen">
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             app:key="sync"
             app:title="Benachrichtigungen aktivieren"
-            app:defaultValue="true" />
+            app:defaultValue="true"
+            app:icon="@drawable/ic_baseline_notifications_active_24" />
 
         <ListPreference
             app:dependency="sync"
@@ -31,8 +33,35 @@
             app:entryValues="@array/sync_values"
             app:key="sync_time"
             app:title="Überprüfung auf neue Noten"
-            app:useSimpleSummaryProvider="true" />
+            app:useSimpleSummaryProvider="true"
+            android:icon="@drawable/ic_baseline_access_time_24" />
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="Aussehen">
+
+        <ListPreference
+            android:key="theme"
+            app:defaultValue="-1"
+            app:entries="@array/theme_entries"
+            app:entryValues="@array/theme_values"
+            app:title="Design"
+            app:useSimpleSummaryProvider="true"
+            app:icon="@drawable/ic_baseline_design_services_24" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Über">
+
+        <Preference
+            android:key="about"
+            app:title="Über diese App"
+            app:icon="@drawable/ic_baseline_school_24" />
+
+        <Preference
+            android:key="licence"
+            android:title="Lizenzen"
+            android:icon="@drawable/ic_baseline_description_24" />
+
+    </PreferenceCategory>
 </PreferenceScreen>

@@ -1,6 +1,8 @@
 package de.blitzdose.dualisnotifier;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.preference.PreferenceManager;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -85,6 +87,11 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
+
+        SharedPreferences settingsPref = PreferenceManager.getDefaultSharedPreferences(context);
+        int theme = Integer.parseInt(settingsPref.getString("theme", "-1"));
+        AppCompatDelegate.setDefaultNightMode(theme);
 
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);

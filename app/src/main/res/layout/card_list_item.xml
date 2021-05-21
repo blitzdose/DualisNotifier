@@ -61,7 +61,6 @@
             <ImageView
                 android:id="@+id/expand_image"
                 android:src="@drawable/ic_baseline_expand_more_24"
-                app:tint="@color/black"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:insetLeft="0dp"
@@ -71,7 +70,8 @@
                 android:layout_marginEnd="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="@id/card_title"
-                app:layout_constraintTop_toTopOf="@id/card_title"/>
+                app:layout_constraintTop_toTopOf="@id/card_title"
+                android:theme="@style/Theme.IconTheme"/>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/expanded_layout"

@@ -97,7 +97,7 @@ public class BackgroundWorker extends Worker {
                                     dualisAPI.setOnDataLoadedListener(new DualisAPI.DataLoadedListener() {
                                         @Override
                                         public void onDataLoaded(JSONObject data) {
-                                            dualisAPI.copareAndSave(context, data);
+                                            DualisAPI.copareAndSave(context, data);
                                         }
                                     });
                                     dualisAPI.makeRequest(context, arguments);
