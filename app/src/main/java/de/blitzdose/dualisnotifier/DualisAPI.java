@@ -42,9 +42,7 @@ public class DualisAPI {
         this.listener = null;
     }
 
-    void makeRequest(Context context, String arguments, CookieManager cookieManager) {
-
-        //CookieHandler.setDefault(cookieManager);
+    void makeRequest(Context context, String arguments) {
 
         mainArguments = arguments.replace("-N000000000000000", "");
         mainArguments = mainArguments.replace("-N000019,", "-N000307");
@@ -181,15 +179,17 @@ public class DualisAPI {
                                     response = new String(response.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
                                     Document doc = Jsoup.parse(response);
                                     Element table = doc.select("table").get(0);
-                                    String thema = table.select("tr").get(3).selectFirst("td").text();
+                                    String thema = table.select("tr").get(4).select("td").get(1).text();
                                     String note = table.select("tr").get(4).select("td").get(3).text();
                                     if (note.isEmpty()) {
+                                        thema = table.select("tr").get(5).select("td").get(1).text();
                                         note = table.select("tr").get(5).select("td").get(3).text();
                                     }
                                     JSONObject pruefung = new JSONObject();
                                     try {
                                         pruefung.put("thema", thema);
                                         pruefung.put("note", note);
+                                        //pruefung.put("note", "" + System.currentTimeMillis());
                                         vorlesungen.getJSONObject(finalJ).put("pruefung", pruefung);
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -213,6 +213,92 @@ public class DualisAPI {
                 queue.add(stringRequest);
 
             }
+        }
+    }
+
+    void copareAndSave(Context context, JSONObject mainJson) {
+        File file = new File(context.getFilesDir() + "/test.json");
+        String fileContent = "";
+        if (file.exists()) {
+            try {
+                BufferedReader fin = new BufferedReader(new FileReader(context.getFilesDir() + "/test.json"));
+                StringBuilder stringBuilder = new StringBuilder();
+                while (fin.ready()) {
+                    stringBuilder.append(fin.readLine());
+                }
+                fileContent = stringBuilder.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        JSONObject savedJson = new JSONObject();
+        try {
+            savedJson = new JSONObject(fileContent);
+            for (int i=0; i<savedJson.getJSONArray("semester").length(); i++) {
+                for (int j=0; j<savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").length(); j++) {
+                    savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).remove("link");
+                }
+            }
+
+            for (int i=0; i<mainJson.getJSONArray("semester").length(); i++) {
+                for (int j=0; j<mainJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").length(); j++) {
+                    mainJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).remove("link");
+                }
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        if (fileContent.equals(mainJson.toString())) {
+            System.out.println("EQUALS");
+        } else {
+            try {
+                for (int i=0; i<mainJson.getJSONArray("semester").length(); i++) {
+                    for (int j=0; j<mainJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").length(); j++) {
+                        JSONObject vorlesung = mainJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j);
+                        String endnoteCurrent = vorlesung.getString("note");
+                        String endnoteSaved = savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).getString("note");
+
+                        String noteCurrent = vorlesung.getJSONObject("pruefung").getString("note");
+                        String noteSaved = savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).getJSONObject("pruefung").getString("note");
+                        if (!noteCurrent.equals(noteSaved)) {
+                            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
+                                    .setSmallIcon(R.drawable.ic_baseline_school_48)
+                                    .setContentTitle("Neue Prüfungsnote")
+                                    .setContentText("Es wurde eine neue Prüfungsnote eingetragen\n" + vorlesung.getString("name")  + ": " + noteCurrent)
+                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+                            notificationManager.notify(j, builder.build());
+                        }
+                        if (!endnoteCurrent.equals(endnoteSaved)) {
+                            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
+                                    .setSmallIcon(R.drawable.ic_baseline_school_48)
+                                    .setContentTitle("Neue Endnote")
+                                    .setContentText("Es wurde eine neue Endnote eingetragen\n" + vorlesung.getString("name")  + ": " + endnoteCurrent)
+                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+                            notificationManager.notify(j, builder.build());
+                        }
+                    }
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileOutputStream fOut = context.openFileOutput("test.json", context.MODE_PRIVATE);
+            fOut.write(mainJson.toString().getBytes());
+            fOut.close();
+        }
+        catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 

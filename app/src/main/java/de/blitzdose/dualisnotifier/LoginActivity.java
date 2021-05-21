@@ -101,6 +101,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 progressIndicator.setVisibility(View.VISIBLE);
+                button.setEnabled(false);
                 ExecutorService executor = Executors.newSingleThreadExecutor();
                 Handler handler = new Handler(Looper.getMainLooper());
 
@@ -132,6 +133,7 @@ public class LoginActivity extends AppCompatActivity {
                                         public void run() {
                                             passwordLayout.setError("Anmeldedaten falsch");
                                             progressIndicator.setVisibility(View.GONE);
+                                            button.setEnabled(true);
                                         }
                                     });
                                 } else {

@@ -17,6 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="@string/app_name"
+            app:menu="@menu/main_menu"
             style="@style/Widget.MaterialComponents.Toolbar.Primary"
             />
 
@@ -32,7 +33,7 @@
         android:layout_centerInParent="true"
         app:indicatorColor="@color/primary"/>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/main_layout"
         android:visibility="visible"
         android:layout_width="match_parent"
@@ -41,7 +42,9 @@
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin">
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
             app:layout_constraintEnd_toEndOf="parent"
@@ -51,7 +54,8 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/semester">
+            android:hint="@string/semester"
+            android:enabled="false">
 
             <AutoCompleteTextView
                 android:id="@+id/autoComplete"
@@ -72,6 +76,6 @@
             android:paddingTop="16dp"
             android:scrollbars="vertical"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </RelativeLayout>

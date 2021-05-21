@@ -1,5 +1,6 @@
 package de.blitzdose.dualisnotifier;
 
+import android.animation.LayoutTransition;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.job.JobInfo;
@@ -7,18 +8,32 @@ import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ListenableWorker;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import org.json.JSONArray;
@@ -35,14 +50,18 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
-    ConstraintLayout mainLayout;
+    LinearLayout mainLayout;
     AutoCompleteTextView semesterDropdown;
     CircularProgressIndicator mainProgressIndicator;
     List<VorlesungModel> vorlesungModels = new ArrayList<>();
     VorlesungAdapter vorlesungAdapter;
+    MaterialToolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +69,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mainLayout = findViewById(R.id.main_layout);
+        mainLayout.setVisibility(View.GONE);
         semesterDropdown = findViewById(R.id.autoComplete);
         mainProgressIndicator = findViewById(R.id.progress_main);
+        toolbar = findViewById(R.id.topAppBar);
+
+        DualisAPI dualisAPI = new DualisAPI();
 
         Bundle bundle = getIntent().getExtras();
         String arguments = bundle.getString("arguments");
@@ -64,12 +87,35 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        DualisAPI dualisAPI = new DualisAPI();
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.refresh:
+                        mainLayout.setVisibility(View.GONE);
+                        mainProgressIndicator.setVisibility(View.VISIBLE);
+                        dualisAPI.makeRequest(MainActivity.this, arguments);
+                        return true;
+                    case R.id.settings:
+                        Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                        startActivity(settingsIntent);
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
+
+        ViewGroup viewGroup = mainLayout;
+        viewGroup.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
+
         dualisAPI.setOnDataLoadedListener(new DualisAPI.DataLoadedListener() {
             @Override
             public void onDataLoaded(JSONObject data) {
                 System.out.println(data.toString());
-                setAlarmManager();
+                setAlarmManager(getApplicationContext());
+
+                dualisAPI.copareAndSave(MainActivity.this, data);
 
                 ArrayList<String> items = new ArrayList<>();
                 try {
@@ -89,13 +135,7 @@ public class MainActivity extends AppCompatActivity {
                 vorlesungModels = new ArrayList<>();
                 RecyclerView mRecyclerView = findViewById(R.id.recycler_view);
                 try {
-                    JSONArray vorlesungen = data.getJSONArray("semester").getJSONObject(0).getJSONArray("Vorlesungen");
-                    for (int i = 0; i < vorlesungen.length(); i++) {
-                        JSONObject vorlesung = vorlesungen.getJSONObject(i);
-                        vorlesungModels.add(new VorlesungModel(vorlesung.getString("name"),
-                                vorlesung.getJSONObject("pruefung").getString("thema"),
-                                vorlesung.getJSONObject("pruefung").getString("note")));
-                    }
+                    updateList(data, 0);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -103,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 mRecyclerView.setHasFixedSize(true);
                 LinearLayoutManager mLayoutManager = new LinearLayoutManager(MainActivity.this);
                 mRecyclerView.setLayoutManager(mLayoutManager);
-                vorlesungAdapter = new VorlesungAdapter(vorlesungModels, MainActivity.this);
+                vorlesungAdapter = new VorlesungAdapter(vorlesungModels, MainActivity.this, mRecyclerView);
                 mRecyclerView.setAdapter(vorlesungAdapter);
 
 
@@ -112,14 +152,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         try {
-                            vorlesungModels.clear();
-                            JSONArray vorlesungen = data.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen");
-                            for (int k = 0; k < vorlesungen.length(); k++) {
-                                JSONObject vorlesung = vorlesungen.getJSONObject(k);
-                                vorlesungModels.add(new VorlesungModel(vorlesung.getString("name"),
-                                        vorlesung.getJSONObject("pruefung").getString("thema"),
-                                        vorlesung.getJSONObject("pruefung").getString("note")));
-                            }
+                            updateList(data, i);
                             vorlesungAdapter.notifyDataSetChanged();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -128,21 +161,40 @@ public class MainActivity extends AppCompatActivity {
                 });
 
 
+                semesterDropdown.setEnabled(true);
                 mainProgressIndicator.setVisibility(View.GONE);
                 mainLayout.setVisibility(View.VISIBLE);
             }
         });
         System.out.println(arguments);
         System.out.println(((CookieManager) CookieHandler.getDefault()).getCookieStore().getCookies().get(0).toString());
-        dualisAPI.makeRequest(this, arguments, cookieManager);
+        dualisAPI.makeRequest(this, arguments);
 
     }
 
-    void setAlarmManager() {
-        Intent liveIntent = new Intent(getApplicationContext(), AReceiver.class);
-        PendingIntent recurring = PendingIntent.getBroadcast(getApplicationContext(), 0, liveIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Calendar updateTime = Calendar.getInstance();
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, updateTime.getTimeInMillis(), 15 * 60 * 1000, recurring);
+    static void setAlarmManager(Context context) {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(BackgroundWorker.class, 15, TimeUnit.MINUTES)
+                .setConstraints(constraints)
+                .build();
+
+        WorkManager workManager = WorkManager.getInstance(context.getApplicationContext());
+        workManager.enqueueUniquePeriodicWork("Counter", ExistingPeriodicWorkPolicy.KEEP,periodicWorkRequest);
+    }
+
+    void updateList(JSONObject data, int position) throws JSONException {
+        vorlesungModels.clear();
+        JSONArray vorlesungen = data.getJSONArray("semester").getJSONObject(position).getJSONArray("Vorlesungen");
+        for (int k = 0; k < vorlesungen.length(); k++) {
+            JSONObject vorlesung = vorlesungen.getJSONObject(k);
+            vorlesungModels.add(new VorlesungModel(vorlesung.getString("name"),
+                    vorlesung.getJSONObject("pruefung").getString("thema"),
+                    vorlesung.getJSONObject("pruefung").getString("note"),
+                    vorlesung.getString("credits"),
+                    vorlesung.getString("note")));
+        }
     }
 }
