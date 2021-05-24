@@ -1,0 +1,50 @@
+<resources>
+    <string name="app_name">DHBW Dualis Notifier</string>
+    <string name="prompt_email">E-Mail-Adresse</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Anmelden</string>
+    <string name="channel_name">Neue Note</string>
+    <string name="channel_description">Benachrichtigung für neu eingetragene Noten</string>
+    <string name="semester">Semester</string>
+    <string name="title_activity_settings">Einstellungen</string>
+    <string name="about_message">
+        Version: %1$s
+        \nEntwickelt von Christian Zäske
+        \nDies ist keine offizielle App der DHBW. Es besteht keine Garantie auf Richtigkeit
+    </string>
+    <string name="preference_file_key">mainPrefs</string>
+    <string name="save_credentials">Anmeldedaten speichern *</string>
+    <string name="save_credentials_helper">* Das speichern der Anmeldedaten ist notwendig, um im Hintergrund auf neue Noten zu prüfen und ggf. dir eine Benachrichtigung schicken zu können.</string>
+    <string name="new_grade_exam">Neue Prüfungsnote</string>
+    <string name="new_grade_exam_text">
+        Es wurde eine neue Prüfungsnote eingetragen
+        \n%1$s: %2$s
+    </string>
+    <string name="new_grade_final">Neue Endnote</string>
+    <string name="new_grade_final_text">
+        Es wurde eine neue Prüfungsnote eingetragen
+        \n%1$s: %2$s
+    </string>
+    <string name="licences">Lizezen</string>
+    <string name="wrong_credentials">Anmeldedaten falsch</string>
+    <string name="biometrics">Biometrie</string>
+    <string name="biometrics_ask">Möchtest du die App mit einem biometrischen Sensor entsperren können? Du kannst diese Option jederzeit in den Einstellungen umstellen.</string>
+    <string name="authentication">Authentifizierung</string>
+    <string name="authentication_ask">Bitte für automatische Anmeldung authentifizieren</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="sync_makes_no_difference">Dies hat keine Auswirkungen, da du deine Anmeldedaten nicht gespeichert hast</string>
+    <string name="biometrics_summary">Nutze biometrische Sensoren zur Anmeldung</string>
+    <string name="notifications">Benachrichtigungen</string>
+    <string name="notifications_summary">Benachrichtigungen aktivieren</string>
+    <string name="check_new_grades">Überprüfung auf neue Noten</string>
+    <string name="look">Aussehen</string>
+    <string name="design">Design</string>
+    <string name="about">Über</string>
+    <string name="about_this_app">Über diese App</string>
+    <string name="donate">Spenden</string>
+    <string name="donate_summary">Unterstütze die Entwicklung</string>
+    <string name="channel_name_general">Info</string>
+    <string name="channel_description_general">Allgemeine Information</string>
+    <string name="authentication_expired">Anmeldedaten abgelaufen</string>
+    <string name="authentication_expired_expl">Hast du vielleicht das Passwort geändert? Melde dich bitte erneut in der App an.</string>
+</resources>

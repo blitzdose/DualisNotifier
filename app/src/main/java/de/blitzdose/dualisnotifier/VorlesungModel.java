@@ -1,13 +1,11 @@
 package de.blitzdose.dualisnotifier;
 
-import java.util.Locale;
-
 public class VorlesungModel {
-    private String title;
-    private String subtitle;
-    private String note;
-    private String credits;
-    private String endnote;
+    private final String title;
+    private final String subtitle;
+    private final String note;
+    private final String credits;
+    private final String endnote;
 
     public VorlesungModel(String title, String subtitle, String note, String credits, String endnote) {
         this.title = title;

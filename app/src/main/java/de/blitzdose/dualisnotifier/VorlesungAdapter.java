@@ -1,7 +1,6 @@
 package de.blitzdose.dualisnotifier;
 
 import android.content.Context;
-import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +12,12 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
-
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 public class VorlesungAdapter extends RecyclerView.Adapter<VorlesungAdapter.MyViewHolder> {
 
-    private List<VorlesungModel> dataModelList;
-    private Context mContext;
-    private RecyclerView recyclerView;
+    private final List<VorlesungModel> dataModelList;
+    private final Context mContext;
     private int mExpandedPosition = -1;
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
@@ -48,7 +42,7 @@ public class VorlesungAdapter extends RecyclerView.Adapter<VorlesungAdapter.MyVi
             expandLayout = itemView.findViewById(R.id.expanded_layout);
         }
 
-        public void bindData(VorlesungModel vorlesungModel, Context context) {
+        public void bindData(VorlesungModel vorlesungModel) {
             titleTextView.setText(vorlesungModel.getTitle());
             subtitleTextView.setText(vorlesungModel.getSubtitle());
             notenTextview.setText(vorlesungModel.getNote());
@@ -57,48 +51,36 @@ public class VorlesungAdapter extends RecyclerView.Adapter<VorlesungAdapter.MyVi
         }
     }
 
-    public VorlesungAdapter(List<VorlesungModel> modelList, Context context, RecyclerView recyclerView) {
+    public VorlesungAdapter(List<VorlesungModel> modelList, Context context) {
         dataModelList = modelList;
         mContext = context;
-        this.recyclerView = recyclerView;
     }
 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate out card list item
-
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_list_item, parent, false);
-        // Return a new view holder
 
         return new MyViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        // Bind data for the item at position
-
-        holder.bindData(dataModelList.get(position), mContext);
+        holder.bindData(dataModelList.get(position));
 
         final boolean isExpanded = position == mExpandedPosition;
         holder.expandLayout.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         holder.materialButton.setImageDrawable(isExpanded?AppCompatResources.getDrawable(mContext, R.drawable.ic_baseline_expand_less_24):AppCompatResources.getDrawable(mContext, R.drawable.ic_baseline_expand_more_24));
         holder.itemView.setActivated(isExpanded);
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mExpandedPosition = isExpanded ? -1:position;
-                //TransitionManager.beginDelayedTransition(recyclerView);
-                notifyItemChanged(position);
-            }
+        holder.itemView.setOnClickListener(v -> {
+            mExpandedPosition = isExpanded ? -1:position;
+            notifyItemChanged(position);
         });
     }
 
     @Override
     public int getItemCount() {
-        // Return the total number of items
-
         return dataModelList.size();
     }
 }

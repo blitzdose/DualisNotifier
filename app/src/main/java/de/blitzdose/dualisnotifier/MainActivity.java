@@ -1,37 +1,22 @@
 package de.blitzdose.dualisnotifier;
 
 import android.animation.LayoutTransition;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.ListenableWorker;
 import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
@@ -49,15 +34,10 @@ import org.json.JSONObject;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoadedListener, DualisAPI.ErrorListener {
@@ -100,22 +80,19 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
         }
         CookieHandler cookieHandler = CookieManager.getDefault();
 
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.refresh:
-                        mainLayout.setVisibility(View.GONE);
-                        mainProgressIndicator.setVisibility(View.VISIBLE);
-                        dualisAPI.makeRequest(MainActivity.this, arguments, cookieHandler);
-                        return true;
-                    case R.id.settings:
-                        Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
-                        startActivity(settingsIntent);
-                        return true;
-                    default:
-                        return false;
-                }
+        toolbar.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.refresh:
+                    mainLayout.setVisibility(View.GONE);
+                    mainProgressIndicator.setVisibility(View.VISIBLE);
+                    dualisAPI.makeRequest(MainActivity.this, arguments, cookieHandler);
+                    return true;
+                case R.id.settings:
+                    Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                    startActivity(settingsIntent);
+                    return true;
+                default:
+                    return false;
             }
         });
 
@@ -147,7 +124,6 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
 
         WorkManager workManager = WorkManager.getInstance(context.getApplicationContext());
         workManager.enqueueUniquePeriodicWork("DualisNotifier", ExistingPeriodicWorkPolicy.REPLACE, periodicWorkRequest);
-        System.out.println("WORKER SCHEDULED");
     }
 
     void updateList(JSONObject data, int position) throws JSONException {
@@ -165,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
 
     @Override
     public void onDataLoaded(JSONObject data) {
-        System.out.println(data.toString());
         setAlarmManager(getApplicationContext());
 
         DualisAPI.copareAndSave(MainActivity.this, data);
@@ -196,20 +171,17 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
         mRecyclerView.setHasFixedSize(true);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(MainActivity.this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        vorlesungAdapter = new VorlesungAdapter(vorlesungModels, MainActivity.this, mRecyclerView);
+        vorlesungAdapter = new VorlesungAdapter(vorlesungModels, MainActivity.this);
         mRecyclerView.setAdapter(vorlesungAdapter);
 
 
 
-        semesterDropdown.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                try {
-                    updateList(data, i);
-                    vorlesungAdapter.notifyDataSetChanged();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+        semesterDropdown.setOnItemClickListener((adapterView, view, i, l) -> {
+            try {
+                updateList(data, i);
+                vorlesungAdapter.notifyDataSetChanged();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         });
 

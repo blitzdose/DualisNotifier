@@ -1,6 +1,5 @@
 package de.blitzdose.dualisnotifier;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,7 +10,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import android.view.View;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,10 +25,6 @@ import androidx.work.WorkManager;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.util.List;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -96,7 +90,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         @Override
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            System.out.println(preference.getKey());
             SharedPreferences sharedPref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
             switch (preference.getKey()) {
                 case "sync":
@@ -138,7 +131,7 @@ public class SettingsActivity extends AppCompatActivity {
                 case "about":
                     String version = "Error";
                     try {
-                        PackageInfo pInfo = null;
+                        PackageInfo pInfo;
                         pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
                         version = pInfo.versionName;
                     } catch (PackageManager.NameNotFoundException e){
