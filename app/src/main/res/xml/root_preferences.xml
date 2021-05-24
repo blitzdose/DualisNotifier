@@ -1,28 +1,22 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory app:title="@string/messages_header">
+    <PreferenceCategory app:title="@string/authentification">
 
-        <EditTextPreference
-            app:key="signature"
-            app:title="@string/signature_title"
-            app:useSimpleSummaryProvider="true" />
-
-        <!--<ListPreference
-            app:defaultValue="reply"
-            app:entries="@array/reply_entries"
-            app:entryValues="@array/reply_values"
-            app:key="reply"
-            app:title="@string/reply_title"
-            app:useSimpleSummaryProvider="true" />-->
+        <SwitchPreference
+            app:key="useBiometrics"
+            app:title="@string/biometrics"
+            app:defaultValue="false"
+            app:summary="@string/biometrics_summary"
+            app:icon="@drawable/ic_baseline_fingerprint_24"/>
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Benachrichtigungen">
+    <PreferenceCategory app:title="@string/notifications">
 
         <SwitchPreference
             app:key="sync"
-            app:title="Benachrichtigungen aktivieren"
+            app:title="@string/notifications_summary"
             app:defaultValue="true"
             app:icon="@drawable/ic_baseline_notifications_active_24" />
 
@@ -32,36 +26,49 @@
             app:entries="@array/sync_entries"
             app:entryValues="@array/sync_values"
             app:key="sync_time"
-            app:title="Überprüfung auf neue Noten"
+            app:title="@string/check_new_grades"
             app:useSimpleSummaryProvider="true"
             android:icon="@drawable/ic_baseline_access_time_24" />
 
+        <Preference
+            app:key="customize_notification"
+            android:title="Benachrichtigungen anpassen"
+            app:icon="@drawable/ic_baseline_brush_24" />
+
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Aussehen">
+    <PreferenceCategory app:title="@string/look">
 
         <ListPreference
             android:key="theme"
             app:defaultValue="-1"
             app:entries="@array/theme_entries"
             app:entryValues="@array/theme_values"
-            app:title="Design"
+            app:title="@string/design"
             app:useSimpleSummaryProvider="true"
             app:icon="@drawable/ic_baseline_design_services_24" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Über">
+    <PreferenceCategory app:title="@string/about">
 
         <Preference
             android:key="about"
-            app:title="Über diese App"
+            app:title="@string/about_this_app"
             app:icon="@drawable/ic_baseline_school_24" />
 
         <Preference
+            android:key="donate"
+            app:title="@string/donate"
+            app:summary="@string/donate_summary"
+            app:icon="@drawable/ic_baseline_local_cafe_24"/>
+
+        <Preference
             android:key="licence"
-            android:title="Lizenzen"
+            android:title="@string/licences"
             android:icon="@drawable/ic_baseline_description_24" />
 
     </PreferenceCategory>
+
+
 </PreferenceScreen>

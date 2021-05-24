@@ -36,8 +36,11 @@ import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import com.android.volley.VolleyError;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,7 +60,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoadedListener {
+public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoadedListener, DualisAPI.ErrorListener {
 
     LinearLayout mainLayout;
     AutoCompleteTextView semesterDropdown;
@@ -72,12 +75,10 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*
-        SharedPreferences settingsPref = PreferenceManager.getDefaultSharedPreferences(this);
-        int theme = Integer.parseInt(settingsPref.getString("theme", "-1"));
-        AppCompatDelegate.setDefaultNightMode(theme);
-
-         */
+        SharedPreferences sharedPref = this.getSharedPreferences(this.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        if (!sharedPref.getBoolean("saveCredentials", true)) {
+            WorkManager.getInstance(this).cancelUniqueWork("DualisNotifier");
+        }
 
         mainLayout = findViewById(R.id.main_layout);
         mainLayout.setVisibility(View.GONE);
@@ -97,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+        CookieHandler cookieHandler = CookieManager.getDefault();
 
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
@@ -105,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
                     case R.id.refresh:
                         mainLayout.setVisibility(View.GONE);
                         mainProgressIndicator.setVisibility(View.VISIBLE);
-                        dualisAPI.makeRequest(MainActivity.this, arguments);
+                        dualisAPI.makeRequest(MainActivity.this, arguments, cookieHandler);
                         return true;
                     case R.id.settings:
                         Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
@@ -121,15 +123,15 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
         viewGroup.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 
         dualisAPI.setOnDataLoadedListener(this);
-        System.out.println(arguments);
-        System.out.println(((CookieManager) CookieHandler.getDefault()).getCookieStore().getCookies().get(0).toString());
-        dualisAPI.makeRequest(this, arguments);
+        dualisAPI.setOnErrorListener(this);
+        dualisAPI.makeRequest(this, arguments, cookieHandler);
 
     }
 
-    static void setAlarmManager(Context context, boolean overwriteCheck) {
+    static void setAlarmManager(Context context) {
         SharedPreferences settingsPref = PreferenceManager.getDefaultSharedPreferences(context);
-        if (!overwriteCheck && !settingsPref.getBoolean("sync", true)) {
+        SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        if (!sharedPref.getBoolean("saveCredentials", false) || !settingsPref.getBoolean("sync", true)) {
             return;
         }
 
@@ -164,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
     @Override
     public void onDataLoaded(JSONObject data) {
         System.out.println(data.toString());
-        setAlarmManager(getApplicationContext(), false);
+        setAlarmManager(getApplicationContext());
 
         DualisAPI.copareAndSave(MainActivity.this, data);
 
@@ -215,5 +217,10 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
         semesterDropdown.setEnabled(true);
         mainProgressIndicator.setVisibility(View.GONE);
         mainLayout.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onError(VolleyError error) {
+        Snackbar.make(findViewById(android.R.id.content), "Error: " + error.toString(), BaseTransientBottomBar.LENGTH_LONG).show();
     }
 }

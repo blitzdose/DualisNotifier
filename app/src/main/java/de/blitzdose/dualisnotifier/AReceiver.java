@@ -19,7 +19,7 @@ public class AReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        MainActivity.setAlarmManager(context, false);
+        MainActivity.setAlarmManager(context);
         /*
         PeriodicWorkRequest.Builder myWorkBuilder =
                 new PeriodicWorkRequest.Builder(BackgroundWorker.class,

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.TypedValue;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class LicenceActivity extends AppCompatActivity {
             String licence = licences[i];
             TextView textView = new TextView(this);
             textView.setText(licence);
+            textView.setTextSize(10);
             textView.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
             textView.setTextColor(getResources().getColor(R.color.black));
             textView.setTypeface(Typeface.MONOSPACE);

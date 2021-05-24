@@ -1,10 +1,13 @@
 package de.blitzdose.dualisnotifier;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -27,9 +30,20 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.CookieStore;
+import java.net.HttpCookie;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
 
 public class DualisAPI {
 
@@ -37,17 +51,21 @@ public class DualisAPI {
     JSONObject mainJson = new JSONObject();
 
     private DataLoadedListener listener;
+    private ErrorListener errorListener;
 
     DualisAPI() {
         this.listener = null;
+        this.errorListener = null;
     }
 
-    void makeRequest(Context context, String arguments) {
+    void makeRequest(Context context, String arguments, CookieHandler cookieHandler) {
 
         System.out.println("New Request");
 
         mainArguments = arguments.replace("-N000000000000000", "");
         mainArguments = mainArguments.replace("-N000019,", "-N000307");
+
+        CookieManager.setDefault(cookieHandler);
 
         RequestQueue queue = Volley.newRequestQueue(context);
         String url = "https://dualis.dhbw.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=COURSERESULTS&" + mainArguments;
@@ -71,7 +89,7 @@ public class DualisAPI {
                                     semesterOptionen.put(jsonObject);
                                 }
                                 mainJson.put("semester", semesterOptionen);
-                                System.out.println(options.size());
+                                System.out.println("Size:" + options.size());
                                 for (int i=0; i<options.size(); i++) {
                                     requestSemester(i, context);
                                 }
@@ -85,7 +103,9 @@ public class DualisAPI {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                System.out.println(error);
+                if (errorListener != null) {
+                    errorListener.onError(error);
+                }
             }
         });
         queue.add(stringRequest);
@@ -154,7 +174,9 @@ public class DualisAPI {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                System.out.println(error);
+                if (errorListener != null) {
+                    errorListener.onError(error);
+                }
             }
         });
         queue.add(stringRequest);
@@ -210,7 +232,9 @@ public class DualisAPI {
                         }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        System.out.println(error);
+                        if (errorListener != null) {
+                            errorListener.onError(error);
+                        }
                     }
                 });
                 queue.add(stringRequest);
@@ -220,11 +244,11 @@ public class DualisAPI {
     }
 
     static void copareAndSave(Context context, JSONObject mainJson) {
-        File file = new File(context.getFilesDir() + "/test.json");
+        File file = new File(context.getFilesDir() + "/data.json");
         String fileContent = "";
         if (file.exists()) {
             try {
-                BufferedReader fin = new BufferedReader(new FileReader(context.getFilesDir() + "/test.json"));
+                BufferedReader fin = new BufferedReader(new FileReader(context.getFilesDir() + "/data.json"));
                 StringBuilder stringBuilder = new StringBuilder();
                 while (fin.ready()) {
                     stringBuilder.append(fin.readLine());
@@ -268,9 +292,16 @@ public class DualisAPI {
                             if (!noteCurrent.equals(noteSaved)) {
                                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
                                         .setSmallIcon(R.drawable.ic_baseline_school_48)
-                                        .setContentTitle("Neue Prüfungsnote")
-                                        .setContentText("Es wurde eine neue Prüfungsnote eingetragen\n" + vorlesung.getString("name")  + ": " + noteCurrent)
+                                        .setContentTitle(context.getResources().getString(R.string.new_grade_exam))
+                                        .setContentText(context.getResources().getString(R.string.new_grade_exam_text, vorlesung.getString("name"), noteCurrent))
                                         .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+                                Intent notificationIntent = new Intent(context, LoginActivity.class);
+                                notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                        | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                PendingIntent intent = PendingIntent.getActivity(context, 0,
+                                        notificationIntent, 0);
+                                builder.setContentIntent(intent);
 
                                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
                                 notificationManager.notify(j, builder.build());
@@ -278,9 +309,16 @@ public class DualisAPI {
                             if (!endnoteCurrent.equals(endnoteSaved)) {
                                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
                                         .setSmallIcon(R.drawable.ic_baseline_school_48)
-                                        .setContentTitle("Neue Endnote")
-                                        .setContentText("Es wurde eine neue Endnote eingetragen\n" + vorlesung.getString("name")  + ": " + endnoteCurrent)
+                                        .setContentTitle(context.getResources().getString(R.string.new_grade_final))
+                                        .setContentText(context.getResources().getString(R.string.new_grade_final_text, vorlesung.getString("name"), endnoteCurrent))
                                         .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+                                Intent notificationIntent = new Intent(context, LoginActivity.class);
+                                notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                        | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                PendingIntent intent = PendingIntent.getActivity(context, 0,
+                                        notificationIntent, 0);
+                                builder.setContentIntent(intent);
 
                                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
                                 notificationManager.notify(j, builder.build());
@@ -294,7 +332,7 @@ public class DualisAPI {
             }
         }
         try {
-            FileOutputStream fOut = context.openFileOutput("test.json", context.MODE_PRIVATE);
+            FileOutputStream fOut = context.openFileOutput("data.json", Context.MODE_PRIVATE);
             fOut.write(mainJson.toString().getBytes());
             fOut.close();
         }
@@ -308,7 +346,15 @@ public class DualisAPI {
         this.listener = listener;
     }
 
+    public void setOnErrorListener(ErrorListener listener) {
+        this.errorListener = listener;
+    }
+
     public interface DataLoadedListener {
         public void onDataLoaded(JSONObject data);
+    }
+
+    public interface ErrorListener {
+        public void onError(VolleyError error);
     }
 }
