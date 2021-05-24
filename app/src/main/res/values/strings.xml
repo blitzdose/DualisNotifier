@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">DHBW Dualis Notifier</string>
     <string name="prompt_email">E-mail address</string>
-    <string name="prompt_password">password</string>
+    <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="channel_name">New grade</string>
     <string name="channel_description">Notification for new grades</string>
@@ -47,4 +47,6 @@
     <string name="channel_description_general">general information</string>
     <string name="authentication_expired">Credentials expired</string>
     <string name="authentication_expired_expl">Maybe you have changed the password? Please log in to the app again.</string>
+    <string name="github">Source code on GitHub</string>
+    <string name="github_summary">For information and support</string>
 </resources>

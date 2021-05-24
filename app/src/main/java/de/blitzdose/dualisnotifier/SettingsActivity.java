@@ -77,6 +77,9 @@ public class SettingsActivity extends AppCompatActivity {
             Preference donatePreference = findPreference("donate");
             donatePreference.setOnPreferenceClickListener(this);
 
+            Preference githubPreference = findPreference("github");
+            githubPreference.setOnPreferenceClickListener(this);
+
             SwitchPreference useBiometricsPreference = findPreference("useBiometrics");
 
             BiometricManager biometricManager = BiometricManager.from(getContext());
@@ -110,15 +113,12 @@ public class SettingsActivity extends AppCompatActivity {
                     return true;
                 case "theme":
                     final Handler handler = new Handler(Looper.getMainLooper());
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(getActivity(), LoginActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            getActivity().startActivity(intent);
-                            getActivity().finish();
-                            Runtime.getRuntime().exit(0);
-                        }
+                    handler.postDelayed(() -> {
+                        Intent intent = new Intent(getActivity(), LoginActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        getActivity().startActivity(intent);
+                        getActivity().finish();
+                        Runtime.getRuntime().exit(0);
                     }, 100);
                     return true;
             }
@@ -152,6 +152,10 @@ public class SettingsActivity extends AppCompatActivity {
                 case "donate":
                     Intent donateIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.paypal.com/donate/?hosted_button_id=QRDS8T657KU7S"));
                     startActivity(donateIntent);
+                    return true;
+                case "github":
+                    Intent githubIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/blitzdose/DualisNotifier"));
+                    startActivity(githubIntent);
                     return true;
                 case "customize_notification":
                     Intent settingsIntent = null;

@@ -68,6 +68,12 @@
             android:title="@string/licences"
             android:icon="@drawable/ic_baseline_description_24" />
 
+        <Preference
+            android:key="github"
+            android:title="@string/github"
+            app:summary="@string/github_summary"
+            app:icon="@drawable/ic_baseline_code_24" />
+
     </PreferenceCategory>
 
 

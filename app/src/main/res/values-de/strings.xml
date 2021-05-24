@@ -47,4 +47,6 @@
     <string name="channel_description_general">Allgemeine Information</string>
     <string name="authentication_expired">Anmeldedaten abgelaufen</string>
     <string name="authentication_expired_expl">Hast du vielleicht das Passwort geändert? Melde dich bitte erneut in der App an.</string>
+    <string name="github">Source code auf GitHub</string>
+    <string name="github_summary">Für Informationen und Support</string>
 </resources>
