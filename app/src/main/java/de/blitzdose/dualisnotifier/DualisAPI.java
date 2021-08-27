@@ -174,17 +174,24 @@ public class DualisAPI {
                                 response = new String(response.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
                                 Document doc = Jsoup.parse(response);
                                 Element table = doc.select("table").get(0);
-                                String thema = table.select("tr").get(4).select("td").get(1).text();
-                                String note = table.select("tr").get(4).select("td").get(3).text();
-                                if (note.isEmpty()) {
-                                    thema = table.select("tr").get(5).select("td").get(1).text();
-                                    note = table.select("tr").get(5).select("td").get(3).text();
+
+                                JSONArray pruefungen = new JSONArray();
+
+                                for (int k=0; k<table.select("tr").size(); k++) {
+                                    try {
+                                        String thema = table.select("tr").get(k).select("td").get(1).text();
+                                        String note = table.select("tr").get(k).select("td").get(3).text();
+                                        if (!note.isEmpty() && table.select("tr").get(k).select("td").get(1).hasClass("tbdata")) {
+                                            JSONObject pruefung = new JSONObject();
+                                            pruefung.put("thema", thema);
+                                            pruefung.put("note", note);
+                                            pruefungen.put(pruefung);
+                                        }
+                                    } catch (IndexOutOfBoundsException ignored) {}
+
                                 }
-                                JSONObject pruefung = new JSONObject();
                                 try {
-                                    pruefung.put("thema", thema);
-                                    pruefung.put("note", note);
-                                    vorlesungen.getJSONObject(finalJ).put("pruefung", pruefung);
+                                    vorlesungen.getJSONObject(finalJ).put("pruefungen", pruefungen);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
