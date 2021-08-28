@@ -259,24 +259,28 @@ public class DualisAPI {
                             String endnoteCurrent = vorlesung.getString("note");
                             String endnoteSaved = savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).getString("note");
 
-                            String noteCurrent = vorlesung.getJSONObject("pruefung").getString("note");
-                            String noteSaved = savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).getJSONObject("pruefung").getString("note");
-                            if (!noteCurrent.equals(noteSaved)) {
-                                NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
-                                        .setSmallIcon(R.drawable.ic_baseline_school_48)
-                                        .setContentTitle(context.getResources().getString(R.string.new_grade_exam))
-                                        .setContentText(context.getResources().getString(R.string.new_grade_exam_text, vorlesung.getString("name"), noteCurrent))
-                                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                            JSONArray pruefungen = vorlesung.getJSONArray("pruefungen");
 
-                                Intent notificationIntent = new Intent(context, LoginActivity.class);
-                                notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                        | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                                PendingIntent intent = PendingIntent.getActivity(context, 0,
-                                        notificationIntent, 0);
-                                builder.setContentIntent(intent);
+                            for (int k=0; k<pruefungen.length(); k++) {
+                                String noteCurrent = pruefungen.getJSONObject(k).getString("note");
+                                String noteSaved = savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).getJSONArray("pruefungen").getJSONObject(k).getString("note");
+                                if (!noteCurrent.equals(noteSaved)) {
+                                    NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
+                                            .setSmallIcon(R.drawable.ic_baseline_school_48)
+                                            .setContentTitle(context.getResources().getString(R.string.new_grade_exam))
+                                            .setContentText(context.getResources().getString(R.string.new_grade_exam_text, vorlesung.getString("name"), noteCurrent))
+                                            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-                                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-                                notificationManager.notify(j, builder.build());
+                                    Intent notificationIntent = new Intent(context, LoginActivity.class);
+                                    notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                            | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                    PendingIntent intent = PendingIntent.getActivity(context, 0,
+                                            notificationIntent, 0);
+                                    builder.setContentIntent(intent);
+
+                                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+                                    notificationManager.notify(Integer.parseInt(j + String.valueOf(k)), builder.build());
+                                }
                             }
                             if (!endnoteCurrent.equals(endnoteSaved)) {
                                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
