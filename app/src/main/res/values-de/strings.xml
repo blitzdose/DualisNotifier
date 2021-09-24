@@ -25,7 +25,7 @@
         Es wurde eine neue Prüfungsnote eingetragen
         \n%1$s: %2$s
     </string>
-    <string name="licences">Lizezen</string>
+    <string name="licences">Lizenzen</string>
     <string name="wrong_credentials">Anmeldedaten falsch</string>
     <string name="biometrics">Biometrie</string>
     <string name="biometrics_ask">Möchtest du die App mit einem biometrischen Sensor entsperren können? Du kannst diese Option jederzeit in den Einstellungen umstellen.</string>
