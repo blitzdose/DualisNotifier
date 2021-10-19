@@ -269,6 +269,7 @@ public class DualisAPI {
                                             .setSmallIcon(R.drawable.ic_baseline_school_48)
                                             .setContentTitle(context.getResources().getString(R.string.new_grade_exam))
                                             .setContentText(context.getResources().getString(R.string.new_grade_exam_text, vorlesung.getString("name"), noteCurrent))
+                                            .setStyle(new NotificationCompat.BigTextStyle().bigText(context.getResources().getString(R.string.new_grade_exam_text, vorlesung.getString("name"), noteCurrent)))
                                             .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
                                     Intent notificationIntent = new Intent(context, LoginActivity.class);
@@ -287,6 +288,7 @@ public class DualisAPI {
                                         .setSmallIcon(R.drawable.ic_baseline_school_48)
                                         .setContentTitle(context.getResources().getString(R.string.new_grade_final))
                                         .setContentText(context.getResources().getString(R.string.new_grade_final_text, vorlesung.getString("name"), endnoteCurrent))
+                                        .setStyle(new NotificationCompat.BigTextStyle().bigText(context.getResources().getString(R.string.new_grade_final_text, vorlesung.getString("name"), endnoteCurrent)))
                                         .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
                                 Intent notificationIntent = new Intent(context, LoginActivity.class);

@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this, R.layout.list_item, items);
         semesterDropdown.setAdapter(arrayAdapter);
         if (items.contains(currentSemester)) {
-            semesterDropdown.setText(currentSemester);
+            semesterDropdown.setText(currentSemester, false);
         } else {
             semesterDropdown.setText(items.get(0), false);
         }
@@ -168,7 +168,11 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
         vorlesungModels = new ArrayList<>();
         RecyclerView mRecyclerView = findViewById(R.id.recycler_view);
         try {
-            updateList(data, 0);
+            if (items.contains(currentSemester)) {
+                updateList(data, items.indexOf(currentSemester));
+            } else {
+                updateList(data, 0);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

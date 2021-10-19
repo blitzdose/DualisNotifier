@@ -92,6 +92,7 @@ public class BackgroundWorker extends Worker {
                                         .setSmallIcon(R.drawable.ic_baseline_school_48)
                                         .setContentTitle(context.getResources().getString(R.string.authentication_expired))
                                         .setContentText(context.getResources().getString(R.string.authentication_expired_expl))
+                                        .setStyle(new NotificationCompat.BigTextStyle().bigText(context.getResources().getString(R.string.authentication_expired_expl)))
                                         .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
                                 Intent notificationIntent = new Intent(context, LoginActivity.class);

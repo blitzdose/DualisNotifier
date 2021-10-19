@@ -96,6 +96,7 @@ public class LoginActivity extends AppCompatActivity {
             if (cipherStorage.containsAlias("password") && cipherStorage.containsAlias("username")){
                 username.setText(cipherStorage.decrypt("username"));
                 password.setText(cipherStorage.decrypt("password"));
+                button.setEnabled(true);
             }
         }
 
