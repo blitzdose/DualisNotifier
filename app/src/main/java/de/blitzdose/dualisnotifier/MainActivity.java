@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
     VorlesungAdapter vorlesungAdapter;
     MaterialToolbar toolbar;
     String arguments = "";
+    String currentSemester = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,7 +159,11 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this, R.layout.list_item, items);
         semesterDropdown.setAdapter(arrayAdapter);
-        semesterDropdown.setText(items.get(0), false);
+        if (items.contains(currentSemester)) {
+            semesterDropdown.setText(currentSemester);
+        } else {
+            semesterDropdown.setText(items.get(0), false);
+        }
 
 
         vorlesungModels = new ArrayList<>();
@@ -177,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
 
 
         semesterDropdown.setOnItemClickListener((adapterView, view, i, l) -> {
+            currentSemester = semesterDropdown.getText().toString();
             try {
                 updateList(data, i);
                 vorlesungAdapter.notifyDataSetChanged();
