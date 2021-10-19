@@ -1,29 +1,21 @@
 package de.blitzdose.dualisnotifier;
 
+import org.json.JSONArray;
+
 public class VorlesungModel {
     private final String title;
-    private final String subtitle;
-    private final String note;
     private final String credits;
     private final String endnote;
+    private final JSONArray pruefungen;
 
-    public VorlesungModel(String title, String subtitle, String note, String credits, String endnote) {
+    public VorlesungModel(String title, JSONArray pruefungen, String credits, String endnote) {
         this.title = title;
-        this.subtitle = subtitle;
-        this.note = note;
+        this.pruefungen = pruefungen;
         this.credits = credits;
         this.endnote = endnote;
     }
     public String getTitle() {
         return title;
-    }
-
-    public String getSubtitle() {
-        return subtitle;
-    }
-
-    public String getNote() {
-        return note;
     }
 
     public String getCredits() {
@@ -32,5 +24,9 @@ public class VorlesungModel {
 
     public String getEndnote() {
         return endnote;
+    }
+
+    public JSONArray getPruefungen() {
+        return pruefungen;
     }
 }

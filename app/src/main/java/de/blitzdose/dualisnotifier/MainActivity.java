@@ -134,8 +134,7 @@ public class MainActivity extends AppCompatActivity implements DualisAPI.DataLoa
         for (int k = 0; k < vorlesungen.length(); k++) {
             JSONObject vorlesung = vorlesungen.getJSONObject(k);
             vorlesungModels.add(new VorlesungModel(vorlesung.getString("name"),
-                    vorlesung.getJSONObject("pruefung").getString("thema"),
-                    vorlesung.getJSONObject("pruefung").getString("note"),
+                    vorlesung.getJSONArray("pruefungen"),
                     vorlesung.getString("credits"),
                     vorlesung.getString("note")));
         }

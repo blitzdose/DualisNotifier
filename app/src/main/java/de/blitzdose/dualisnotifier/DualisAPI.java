@@ -174,17 +174,24 @@ public class DualisAPI {
                                 response = new String(response.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
                                 Document doc = Jsoup.parse(response);
                                 Element table = doc.select("table").get(0);
-                                String thema = table.select("tr").get(4).select("td").get(1).text();
-                                String note = table.select("tr").get(4).select("td").get(3).text();
-                                if (note.isEmpty()) {
-                                    thema = table.select("tr").get(5).select("td").get(1).text();
-                                    note = table.select("tr").get(5).select("td").get(3).text();
+
+                                JSONArray pruefungen = new JSONArray();
+
+                                for (int k=0; k<table.select("tr").size(); k++) {
+                                    try {
+                                        String thema = table.select("tr").get(k).select("td").get(1).text();
+                                        String note = table.select("tr").get(k).select("td").get(3).text();
+                                        if (!note.isEmpty() && table.select("tr").get(k).select("td").get(1).hasClass("tbdata")) {
+                                            JSONObject pruefung = new JSONObject();
+                                            pruefung.put("thema", thema);
+                                            pruefung.put("note", note);
+                                            pruefungen.put(pruefung);
+                                        }
+                                    } catch (IndexOutOfBoundsException ignored) {}
+
                                 }
-                                JSONObject pruefung = new JSONObject();
                                 try {
-                                    pruefung.put("thema", thema);
-                                    pruefung.put("note", note);
-                                    vorlesungen.getJSONObject(finalJ).put("pruefung", pruefung);
+                                    vorlesungen.getJSONObject(finalJ).put("pruefungen", pruefungen);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -252,24 +259,28 @@ public class DualisAPI {
                             String endnoteCurrent = vorlesung.getString("note");
                             String endnoteSaved = savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).getString("note");
 
-                            String noteCurrent = vorlesung.getJSONObject("pruefung").getString("note");
-                            String noteSaved = savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).getJSONObject("pruefung").getString("note");
-                            if (!noteCurrent.equals(noteSaved)) {
-                                NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
-                                        .setSmallIcon(R.drawable.ic_baseline_school_48)
-                                        .setContentTitle(context.getResources().getString(R.string.new_grade_exam))
-                                        .setContentText(context.getResources().getString(R.string.new_grade_exam_text, vorlesung.getString("name"), noteCurrent))
-                                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                            JSONArray pruefungen = vorlesung.getJSONArray("pruefungen");
 
-                                Intent notificationIntent = new Intent(context, LoginActivity.class);
-                                notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                        | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                                PendingIntent intent = PendingIntent.getActivity(context, 0,
-                                        notificationIntent, 0);
-                                builder.setContentIntent(intent);
+                            for (int k=0; k<pruefungen.length(); k++) {
+                                String noteCurrent = pruefungen.getJSONObject(k).getString("note");
+                                String noteSaved = savedJson.getJSONArray("semester").getJSONObject(i).getJSONArray("Vorlesungen").getJSONObject(j).getJSONArray("pruefungen").getJSONObject(k).getString("note");
+                                if (!noteCurrent.equals(noteSaved)) {
+                                    NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
+                                            .setSmallIcon(R.drawable.ic_baseline_school_48)
+                                            .setContentTitle(context.getResources().getString(R.string.new_grade_exam))
+                                            .setContentText(context.getResources().getString(R.string.new_grade_exam_text, vorlesung.getString("name"), noteCurrent))
+                                            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-                                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-                                notificationManager.notify(j, builder.build());
+                                    Intent notificationIntent = new Intent(context, LoginActivity.class);
+                                    notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                            | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                    PendingIntent intent = PendingIntent.getActivity(context, 0,
+                                            notificationIntent, 0);
+                                    builder.setContentIntent(intent);
+
+                                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+                                    notificationManager.notify(Integer.parseInt(j + String.valueOf(k)), builder.build());
+                                }
                             }
                             if (!endnoteCurrent.equals(endnoteSaved)) {
                                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1234")
