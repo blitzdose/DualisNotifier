@@ -49,4 +49,7 @@
     <string name="authentication_expired_expl">Hast du vielleicht das Passwort geändert? Melde dich bitte erneut in der App an.</string>
     <string name="github">Source code auf GitHub</string>
     <string name="github_summary">Für Informationen und Support</string>
+    <string name="not_maintained_anymore">Nicht mehr unterstützt</string>
+    <string name="not_maintained_text">Diese App wird nicht mehr weiterentwickelt. Es ist zur Zeit eine App (DHBWorld) in einer offenen Testphase, welche DualisNotifier ablösen wird. Bitte wechsle zu dieser App.</string>
+    <string name="to_googleplay">Zu Google Play</string>
 </resources>

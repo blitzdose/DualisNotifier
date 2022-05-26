@@ -3,8 +3,10 @@ package de.blitzdose.dualisnotifier;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -62,6 +64,24 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
+
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.not_maintained_anymore)
+                .setMessage(R.string.not_maintained_text)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.to_googleplay, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse(
+                                "https://play.google.com/store/apps/details?id=com.main.dhbworld"));
+                        intent.setPackage("com.android.vending");
+                        startActivity(intent);
+                    }
+                })
+                .show();
+
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.cancel(55);
