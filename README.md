@@ -1,5 +1,9 @@
-# DHBW Dualis Notifier
+## ⚠️ Nicht mehr unterstüzt ⚠️
+Diese App wird nicht mehr weiterentwickelt. Sie wird durch eine neue App mit mehr Funktionen abgelöst. Diese findest du hier:<br>
+[DHBWorld](https://play.google.com/store/apps/details?id=com.main.dhbworld)
 
+
+# DHBW Dualis Notifier
 
 <p align="center">
 <img src="https://github.com/blitzdose/DualisNotifier/raw/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" width="200">
